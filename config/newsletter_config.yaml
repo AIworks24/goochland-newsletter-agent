@@ -1,0 +1,107 @@
+# config/newsletter_config.yaml
+# Goochland GOP Newsletter Configuration
+
+wordpress:
+  url: "https://goochland.gop"
+  post_type: "post"
+  default_category: "Newsletter"
+  default_status: "draft"
+
+style:
+  tone: "professional, conservative, informative, engaging"
+  guidelines: |
+    - Use clear, accessible language appropriate for all constituents
+    - Maintain factual accuracy with proper citations
+    - Represent conservative values authentically and respectfully
+    - Avoid inflammatory or unnecessarily divisive language
+    - Focus on local Goochland County impact and relevance
+    - Include clear calls-to-action when appropriate
+    - Use inclusive language that welcomes all community members
+    - Maintain a hopeful and constructive tone
+    - Emphasize solutions and positive actions
+
+content:
+  min_words: 600
+  max_words: 1200
+  default_word_count: 800
+  
+  required_sections:
+    - introduction
+    - main_content
+    - local_impact
+    - call_to_action
+  
+  citation_style: "AP"
+  
+  structure:
+    opening: "Strong, newsworthy hook that connects to local readers"
+    body: "Clear explanation with facts, examples, and analysis"
+    closing: "Concrete call-to-action or next steps"
+
+sources:
+  trusted_domains:
+    - "virginia.gov"
+    - "goochlandva.us"
+    - "rpv.org"
+    - "heritage.org"
+    - "congress.gov"
+    - "senate.gov"
+    - "house.gov"
+    - "governor.virginia.gov"
+  
+  preferred_sources:
+    - "Official government websites"
+    - "Established conservative policy organizations"
+    - "Local Virginia news outlets"
+    - "Primary source documents"
+
+images:
+  default_style: "professional, clean, modern, patriotic"
+  
+  avoid_terms:
+    - "specific political figures by name"
+    - "partisan symbols (donkey, elephant)"
+    - "controversial or divisive imagery"
+  
+  preferred_themes:
+    - "Virginia state capitol and landmarks"
+    - "Goochland County scenes"
+    - "Community gatherings and events"
+    - "Abstract patriotic concepts"
+    - "Historical Virginia imagery"
+    - "Nature and local landscapes"
+  
+  specifications:
+    size: "1792x1024"
+    quality: "standard"
+    style: "digital illustration"
+
+review:
+  require_approval: true
+  default_status: "draft"
+  
+  review_checklist:
+    - "Factual accuracy verified"
+    - "All sources properly cited"
+    - "Tone appropriate and professional"
+    - "No grammatical or spelling errors"
+    - "Local Goochland relevance clear"
+    - "Call-to-action included and appropriate"
+    - "Image relevant and professional"
+    - "Politically sensitive content reviewed"
+
+automation:
+  enabled: false
+  monthly_generation:
+    enabled: false
+    day_of_month: 25
+    time: "09:00"
+    timezone: "America/New_York"
+
+metadata:
+  default_tags:
+    - "Newsletter"
+    - "Goochland GOP"
+  
+  auto_tags: true
+  extract_topics: true
