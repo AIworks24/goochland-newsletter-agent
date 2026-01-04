@@ -1,4 +1,5 @@
 # backend/app/services/newsletter_generator.py
+# Correct fix for Anthropic SDK
 from anthropic import Anthropic
 from typing import Dict, Optional
 import json
@@ -18,7 +19,6 @@ class NewsletterGenerator:
                 config = yaml.safe_load(f)
                 return config.get('style', {}).get('guidelines', '')
         except:
-            # Default guidelines if file doesn't exist
             return """
             - Use clear, accessible language
             - Maintain factual accuracy with citations
@@ -36,7 +36,6 @@ class NewsletterGenerator:
     ) -> NewsletterContent:
         """Generate newsletter content based on input type"""
         
-        # Build prompt based on content type
         if content_type == ContentType.RESEARCH:
             prompt = self._build_research_prompt(input_data, word_count)
         elif content_type == ContentType.MINUTES:
@@ -57,8 +56,14 @@ class NewsletterGenerator:
             }]
         )
         
+        # CORRECT FIX: Extract text properly
+        response_text = ""
+        for block in message.content:
+            if block.type == "text":
+                response_text += block.text
+        
         # Parse response
-        newsletter_data = self._parse_newsletter_response(message.content[0].text)
+        newsletter_data = self._parse_newsletter_response(response_text)
         
         return NewsletterContent(**newsletter_data)
     
@@ -78,7 +83,7 @@ You must respond with valid JSON in exactly this structure:
     "excerpt": "2-3 sentence summary (150-200 characters)",
     "suggested_images": ["Description 1", "Description 2"],
     "sources": [
-        {{"title": "Source Name", "url": "https://...", "accessed": "YYYY-MM-DD"}}
+        {{"title": "Source Name or Organization", "url": "", "accessed": ""}}
     ],
     "tags": ["tag1", "tag2", "tag3"],
     "category": "Newsletter|Events|Policy|Community"
@@ -87,12 +92,16 @@ You must respond with valid JSON in exactly this structure:
 CONTENT REQUIREMENTS:
 - Lead with the most newsworthy information
 - Use AP style for formatting
-- Include specific data and facts
-- Attribute all claims to sources
+- Include specific data and facts WITH SOURCE ATTRIBUTION IN THE TEXT
 - Write at an 8th-10th grade reading level
 - Include a clear call-to-action
 - Make local connections explicit
 - Suggest 2-3 relevant, professional images
+
+IN THE BODY TEXT:
+- When stating facts, include attribution: "According to the Heritage Foundation, ..."
+- For statistics: "The U.S. Census Bureau reports that..."
+- For policies: "The Virginia Department of Education announced..."
 
 TONE:
 Professional, informative, engaging, and respectful. Represent conservative values authentically while remaining inclusive to all Goochland residents."""
@@ -119,11 +128,18 @@ TARGET LENGTH: {word_count} words
 Create a compelling newsletter article that:
 1. Opens with a strong hook relevant to Goochland residents
 2. Explains the issue clearly and concisely
-3. Provides specific examples and data
+3. Provides specific examples and data WITH SOURCE CITATIONS in the text
 4. Analyzes local impact and implications
 5. Includes conservative perspective and values
 6. Ends with a call-to-action (join, learn more, contact representatives, etc.)
-7. Cites all sources properly
+7. CRITICAL: Includes 3-5 sources in the "sources" array based on organizations/publications mentioned in the research
+
+IMPORTANT: In the body text, cite sources naturally:
+- "According to [Source], ..."
+- "The [Organization] reports that..."
+- "[Government Agency] data shows..."
+
+Then list those same sources in the "sources" array.
 
 Remember to output valid JSON as specified in your system prompt."""
 
@@ -146,6 +162,7 @@ Transform these meeting minutes into an engaging newsletter that:
 4. Recognizes key contributors and volunteers
 5. Makes dry information engaging and relevant
 6. Includes a call-to-action (attend next meeting, volunteer, etc.)
+7. Lists "Goochland County Republican Committee" as a source in the sources array
 
 Use a narrative style that makes readers feel connected to the committee's work.
 
@@ -174,24 +191,22 @@ Create a cohesive article that:
 4. Maintains narrative flow between sections
 5. Provides clear value to readers
 6. Includes multiple calls-to-action
+7. Lists both "Goochland County Republican Committee" AND research sources (3-5 total)
 
 Remember to output valid JSON as specified in your system prompt."""
 
     def _parse_newsletter_response(self, response_text: str) -> Dict:
         """Parse Claude's response and extract newsletter data"""
         
-        # Try to extract JSON from response
         import re
         
         try:
-            # Look for JSON in the response
             json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
             if json_match:
                 newsletter_data = json.loads(json_match.group())
             else:
                 newsletter_data = json.loads(response_text)
         except json.JSONDecodeError as e:
-            # If parsing fails, create a basic structure
             print(f"JSON parsing error: {e}")
             newsletter_data = {
                 "title": "Newsletter Article",
@@ -202,5 +217,8 @@ Remember to output valid JSON as specified in your system prompt."""
                 "tags": ["Newsletter"],
                 "category": "Newsletter"
             }
+        
+        if "sources" not in newsletter_data:
+            newsletter_data["sources"] = []
         
         return newsletter_data

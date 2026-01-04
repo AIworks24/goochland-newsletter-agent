@@ -1,4 +1,5 @@
 // frontend/src/components/GenerationStatus.jsx
+// EXACT ORIGINAL from document index 11 + ONLY image display added
 import React, { useState } from 'react'
 
 function GenerationStatus({ status, result }) {
@@ -78,6 +79,23 @@ function GenerationStatus({ status, result }) {
               
               <div className="modal-body">
                 <article className="newsletter-preview">
+                  {/* ADDED: Display image if available */}
+                  {result.image_url && (
+                    <div style={{ marginBottom: '2rem' }}>
+                      <img 
+                        src={result.image_url} 
+                        alt="Newsletter featured image"
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          maxHeight: '400px',
+                          objectFit: 'cover',
+                          borderRadius: '8px'
+                        }}
+                      />
+                    </div>
+                  )}
+                  
                   <h1>{result.content?.title}</h1>
                   {result.content?.subtitle && (
                     <h2 className="subtitle">{result.content.subtitle}</h2>

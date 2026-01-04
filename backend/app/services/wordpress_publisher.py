@@ -5,6 +5,7 @@ from ..config import settings
 from ..models import WordPressPost
 import base64
 import os
+import json
 
 class WordPressPublisher:
     def __init__(self):
@@ -146,7 +147,17 @@ class WordPressPublisher:
                 auth=self.auth
             )
             
-            categories = response.json()
+            # FIX: Check if response is valid JSON before parsing
+            if response.status_code != 200:
+                print(f"Category search failed with status {response.status_code}")
+                return None
+            
+            try:
+                categories = response.json()
+            except json.JSONDecodeError as e:
+                print(f"Error with category (invalid JSON response): {e}")
+                return None
+            
             if categories:
                 return categories[0]['id']
             
@@ -158,7 +169,10 @@ class WordPressPublisher:
             )
             
             if response.status_code == 201:
-                return response.json()['id']
+                try:
+                    return response.json()['id']
+                except json.JSONDecodeError:
+                    return None
             
         except Exception as e:
             print(f"Error with category: {e}")
@@ -176,7 +190,17 @@ class WordPressPublisher:
                 auth=self.auth
             )
             
-            tags = response.json()
+            # FIX: Check if response is valid JSON before parsing
+            if response.status_code != 200:
+                print(f"Tag search failed with status {response.status_code}")
+                return None
+            
+            try:
+                tags = response.json()
+            except json.JSONDecodeError as e:
+                print(f"Error with tag (invalid JSON response): {e}")
+                return None
+            
             if tags:
                 return tags[0]['id']
             
@@ -188,7 +212,10 @@ class WordPressPublisher:
             )
             
             if response.status_code == 201:
-                return response.json()['id']
+                try:
+                    return response.json()['id']
+                except json.JSONDecodeError:
+                    return None
             
         except Exception as e:
             print(f"Error with tag: {e}")

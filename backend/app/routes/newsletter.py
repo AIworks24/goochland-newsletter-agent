@@ -1,4 +1,5 @@
 # backend/app/routes/newsletter.py
+# EXACT ORIGINAL from document index 26
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 from typing import Optional
@@ -53,6 +54,7 @@ async def generate_from_research(request: ResearchRequest):
         
         # Step 3: Generate featured image
         print("Generating featured image...")
+        image_url = None  # Track image URL for preview
         image_id = None
         try:
             image_description = newsletter_content.suggested_images[0] if newsletter_content.suggested_images else "Newsletter header image"
@@ -98,6 +100,7 @@ async def generate_from_research(request: ResearchRequest):
             "edit_url": wp_result.get('edit_url'),
             "preview_url": wp_result.get('preview_url'),
             "content": newsletter_content.dict(),
+            "image_url": image_url,  # ADD THIS LINE
             "generation_time": generation_time,
             "created_at": datetime.now().isoformat()
         }
@@ -150,6 +153,7 @@ async def generate_from_minutes(
         )
         
         print("Generating featured image...")
+        image_url = None
         image_id = None
         try:
             image_description = newsletter_content.suggested_images[0] if newsletter_content.suggested_images else "Meeting highlights"
@@ -198,6 +202,7 @@ async def generate_from_minutes(
             "edit_url": wp_result.get('edit_url'),
             "preview_url": wp_result.get('preview_url'),
             "content": newsletter_content.dict(),
+            "image_url": image_url,  # ADD THIS LINE
             "generation_time": generation_time,
             "created_at": datetime.now().isoformat()
         }
@@ -251,6 +256,7 @@ async def generate_hybrid(
             word_count=1000
         )
         
+        image_url = None
         image_id = None
         try:
             image_description = newsletter_content.suggested_images[0] if newsletter_content.suggested_images else "Newsletter header"
@@ -298,6 +304,7 @@ async def generate_hybrid(
             "edit_url": wp_result.get('edit_url'),
             "preview_url": wp_result.get('preview_url'),
             "content": newsletter_content.dict(),
+            "image_url": image_url,  # ADD THIS LINE
             "generation_time": generation_time,
             "created_at": datetime.now().isoformat()
         }
